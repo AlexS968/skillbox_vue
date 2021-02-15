@@ -14,17 +14,22 @@
       {{ product.price }} ₽
     </span>
 
-    <ul class="colors colors--black">
-      <ColorItem v-for="color in product.colorId" :key="color.id" :color="color"/>
-    </ul>
+    <ColorsBlock :colors="colors" :product-colors="product.colorId"/>
+
   </li>
 </template>
 
 <script>
-import ColorItem from '@/components/ColorItem.vue';
+import colors from '@/data/colors';
+import ColorsBlock from './ColorsBlock.vue';
 
 export default {
-  components: { ColorItem },
+  components: { ColorsBlock },
   props: ['product'],
+  computed: {
+    colors() {
+      return colors;
+    },
+  },
 };
 </script>

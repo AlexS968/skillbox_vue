@@ -13,7 +13,7 @@ export default [
     title: 'Электрическая зубная щетка Philips Sonicare HX6232/41',
     price: 6990,
     image: 'img/toothbrush.jpg',
-    colorId: [1, 2, 3],
+    colorId: [2, 3],
   },
   {
     id: 3,
