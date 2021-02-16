@@ -29,7 +29,7 @@
 
       <fieldset class="form__block">
         <legend class="form__legend">Цвет</legend>
-        <ColorsBlock :colors="colors" :product-colors="colorsId"
+        <ColorsBlock class="white__border__color" :colors="colors"
                      :current-color-id.sync="currentColorId"/>
       </fieldset>
 
@@ -129,9 +129,6 @@ export default {
     colors() {
       return colors;
     },
-    colorsId() {
-      return colors.map((color) => color.id);
-    },
   },
   watch: {
     priceFrom(value) {
@@ -163,3 +160,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.white__border__color{
+  border: 1px solid white;
+}
+</style>

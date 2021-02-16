@@ -14,7 +14,8 @@
       {{ product.price }} ₽
     </span>
 
-    <ColorsBlock :colors="colors" :product-colors="product.colorId"/>
+    <span class="form__legend">Цвет</span><br>
+    <ColorsBlock class="black__border__color" :colors="colors"/>
 
   </li>
 </template>
@@ -28,8 +29,18 @@ export default {
   props: ['product'],
   computed: {
     colors() {
-      return colors;
+      return this.product.colorId.map((id) => colors.find((c) => c.id === id));
     },
   },
 };
 </script>
+
+<style>
+.black__border__color{
+  display: inline-flex;
+  border: 1px solid black;
+}
+.catalog__title{
+  height: 50px;
+}
+</style>
