@@ -5,7 +5,7 @@
         Каталог
       </h1>
       <span class="content__info">
-        152 товара
+        {{ this.productsNumber }} в продаже
       </span>
     </div>
 
@@ -24,6 +24,7 @@
 
 <script>
 import products from '@/data/products';
+import enumerate from '@/helpers/enumerate';
 import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
@@ -73,6 +74,11 @@ export default {
     },
     countProducts() {
       return this.filteredProducts.length;
+    },
+    productsNumber() {
+      console.log(this.countProducts % 10);
+      return `${this.countProducts} ${enumerate(this.countProducts,
+        ['товар', 'товара', 'товаров'])}`;
     },
   },
 };

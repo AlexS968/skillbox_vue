@@ -6,13 +6,13 @@
     </a>
 
     <h3 class="catalog__title">
-      <a href="#">
+      <a href="#" @click.prevent="gotoPage('product', {id: product.id})">
         {{ product.title }}
       </a>
     </h3>
 
     <span class="catalog__price">
-      {{ product.price }} ₽
+      {{ product.price | numberFormat }} ₽
     </span>
 
     <span class="form__legend">Цвет</span><br>
@@ -23,7 +23,8 @@
 
 <script>
 import colors from '@/data/colors';
-import eventBus from '@/eventBus';
+import gotoPage from '@/helpers/gotoPage';
+import numberFormat from '@/helpers/numberFormat';
 import ColorsBlock from './ColorsBlock.vue';
 
 export default {
@@ -35,9 +36,10 @@ export default {
     },
   },
   methods: {
-    gotoPage(pageName, pageParam) {
-      eventBus.$emit('gotoPage', pageName, pageParam);
-    },
+    gotoPage,
+  },
+  filters: {
+    numberFormat,
   },
 };
 </script>
