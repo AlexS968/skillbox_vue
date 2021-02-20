@@ -76,7 +76,6 @@ export default {
       return this.filteredProducts.length;
     },
     productsNumber() {
-      console.log(this.countProducts % 10);
       return `${this.countProducts} ${enumerate(this.countProducts,
         ['товар', 'товара', 'товаров'])}`;
     },

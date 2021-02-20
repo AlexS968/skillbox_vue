@@ -3,7 +3,7 @@ export default [
     id: 1,
     categoryId: 1,
     title: 'Универсальный триммер Philips MG3731/15',
-    price: 3390,
+    price: 3155.5,
     image: 'img/trimmer.jpg',
     colorId: [1, 2],
   },
