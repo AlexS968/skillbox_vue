@@ -14,8 +14,8 @@ export default {
 
   computed: {
     productsNumber() {
-      return this.$store.state.cartProducts.map((p) => p.amount)
-        .reduce((acc, amount) => acc + amount, 0);
+      console.log(this.$store.state.cartProducts.map((p) => p.productId));
+      return this.$store.state.cartProducts.length;
     },
   },
 };
