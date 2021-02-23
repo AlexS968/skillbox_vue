@@ -5,7 +5,7 @@
     </router-link>
 
     <h3 class="catalog__title">
-      <router-link href="#" :to="{name:'product', params:{id:product.id}}">
+      <router-link :to="{name:'product', params:{id:product.id}}">
         {{ product.title }}
       </router-link>
     </h3>
@@ -15,27 +15,23 @@
     </span>
 
     <span class="form__legend">Цвет</span><br>
-    <ColorsBlock class="black__border__color" :colors="colors"/>
+    <BlockColors class="black__border__color" :colors="colors"/>
 
   </li>
 </template>
 
 <script>
 import colors from '@/data/colors';
-import gotoPage from '@/helpers/gotoPage';
 import numberFormat from '@/helpers/numberFormat';
-import ColorsBlock from './ColorsBlock.vue';
+import BlockColors from '../common/BlockColors.vue';
 
 export default {
-  components: { ColorsBlock },
+  components: { BlockColors },
   props: ['product'],
   computed: {
     colors() {
       return this.product.colorId.map((id) => colors.find((c) => c.id === id));
     },
-  },
-  methods: {
-    gotoPage,
   },
   filters: {
     numberFormat,
