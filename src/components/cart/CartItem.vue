@@ -1,36 +1,26 @@
 <template>
   <li class="cart__item product">
     <div class="product__pic">
-      <img :src="item.product.image" width="120" height="120"
+      <router-link :to="{name:'product', params:{id:item.product.id}}">
+        <img :src="item.product.image" width="120" height="120"
            alt="item.product.title">
+      </router-link>
     </div>
     <h3 class="product__title">
-      {{ item.product.title }}
+      <router-link :to="{name:'product', params:{id:item.product.id}}">
+        {{ item.product.title }}
+      </router-link>
     </h3>
     <span class="product__code">Артикул: {{ item.product.id }}</span>
 
-    <div class="product__counter form__counter">
-      <button type="button" aria-label="Убрать один товар">
-        <svg width="10" height="10" fill="currentColor">
-          <use xlink:href="#icon-minus"></use>
-        </svg>
-      </button>
-
-      <input type="text" v-model.number="amount" name="count">
-
-      <button type="button" aria-label="Добавить один товар">
-        <svg width="10" height="10" fill="currentColor">
-          <use xlink:href="#icon-plus"></use>
-        </svg>
-      </button>
-    </div>
+    <BlockCounter class="product__counter" :amount.sync="amount"/>
 
     <b class="product__price">
       {{ item.product.price * item.amount | numberFormat }} ₽
     </b>
 
-    <button class="product__del button-del" type="button"
-            aria-label="Удалить товар из корзины" @click.prevent="deleteProduct(item.productId)">
+    <button class="product__del button-del" type="button" aria-label="Удалить товар из корзины"
+            @click.prevent="deleteCartProduct(item.productId)">
       <svg width="20" height="20" fill="currentColor">
         <use xlink:href="#icon-close"></use>
       </svg>
@@ -41,9 +31,11 @@
 <script>
 import numberFormat from '@/helpers/numberFormat';
 import { mapMutations } from 'vuex';
+import BlockCounter from '@/components/common/BlockCounter.vue';
 
 export default {
   props: ['item'],
+  components: { BlockCounter },
   filters: {
     numberFormat,
   },
@@ -59,7 +51,7 @@ export default {
     },
   },
   methods: {
-    ...mapMutations({ deleteProduct: 'deleteCartProduct' }),
+    ...mapMutations(['deleteCartProduct']),
   },
 };
 

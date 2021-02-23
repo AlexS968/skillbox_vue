@@ -47,7 +47,7 @@
 
 <script>
 import numberFormat from '@/helpers/numberFormat';
-import CartItem from '@/components/CartItem.vue';
+import CartItem from '@/components/cart/CartItem.vue';
 import { mapGetters } from 'vuex';
 import enumerate from '@/helpers/enumerate';
 

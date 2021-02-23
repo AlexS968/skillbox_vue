@@ -40,7 +40,7 @@
 
             <fieldset class="form__block">
               <legend class="form__legend">Цвет:</legend>
-              <ColorsBlock class="white__border__color" :colors="colors"/>
+              <BlockColors class="white__border__color" :colors="colors"/>
             </fieldset>
 
             <fieldset class="form__block">
@@ -77,7 +77,7 @@
 
             <div class="item__row">
 
-              <BlockCounter :product-amount.sync="productAmount"/>
+              <BlockCounter :amount.sync="productAmount"/>
 
               <button class="button button--primery" type="submit">
                 В корзину
@@ -158,10 +158,9 @@
 import products from '@/data/products';
 import categories from '@/data/categories';
 import colors from '@/data/colors';
-import gotoPage from '@/helpers/gotoPage';
 import numberFormat from '@/helpers/numberFormat';
-import ColorsBlock from '@/components/ColorsBlock.vue';
-import BlockCounter from '@/components/BlockCounter.vue';
+import BlockColors from '@/components/common/BlockColors.vue';
+import BlockCounter from '@/components/common/BlockCounter.vue';
 
 export default {
   data() {
@@ -169,7 +168,7 @@ export default {
       productAmount: 1,
     };
   },
-  components: { ColorsBlock, BlockCounter },
+  components: { BlockColors, BlockCounter },
   computed: {
     product() {
       return products.find((product) => product.id === +this.$route.params.id);
@@ -182,7 +181,6 @@ export default {
     },
   },
   methods: {
-    gotoPage,
     addToCart() {
       this.$store.commit(
         'addProductToCart',
@@ -192,6 +190,14 @@ export default {
   },
   filters: {
     numberFormat,
+  },
+  watch: {
+    // eslint-disable-next-line
+    '$route.params.id'() {
+      if (!this.product) {
+        this.$router.replace({ name: 'notFound' });
+      }
+    },
   },
 };
 </script>

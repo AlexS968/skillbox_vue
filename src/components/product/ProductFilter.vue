@@ -29,7 +29,7 @@
 
       <fieldset class="form__block">
         <legend class="form__legend">Цвет</legend>
-        <ColorsBlock class="white__border__color" :colors="colors"
+        <BlockColors class="white__border__color" :colors="colors"
                      :current-color-id.sync="currentColorId"/>
       </fieldset>
 
@@ -109,7 +109,7 @@
 <script>
 import colors from '@/data/colors';
 import categories from '@/data/categories';
-import ColorsBlock from './ColorsBlock.vue';
+import BlockColors from '../common/BlockColors.vue';
 
 export default {
   data() {
@@ -121,7 +121,7 @@ export default {
     };
   },
   props: ['priceFrom', 'priceTo', 'categoryId', 'colorId'],
-  components: { ColorsBlock },
+  components: { BlockColors },
   computed: {
     categories() {
       return categories;
