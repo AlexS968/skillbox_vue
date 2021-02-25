@@ -29,8 +29,7 @@
 
       <fieldset class="form__block">
         <legend class="form__legend">Цвет</legend>
-        <BlockColors class="white__border__color" :colors="colors"
-                     :current-color-id.sync="currentColorId"/>
+        <BlockColors :colors="colors" :current-color-id.sync="currentColorId"/>
       </fieldset>
 
       <fieldset class="form__block">
@@ -160,9 +159,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.white__border__color{
-  border: 1px solid white;
-}
-</style>
