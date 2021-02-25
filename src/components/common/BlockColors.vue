@@ -4,7 +4,7 @@
       <label class="colors__label">
         <input class="colors__radio sr-only" type="radio" :value="color.id"
                v-model="computedColorId">
-        <span class="colors__value" :style="'background-color: ' + color.title"></span>
+        <span class="colors__value" :style="'background-color: ' + color.code"></span>
       </label>
     </li>
   </ul>
