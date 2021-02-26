@@ -23,12 +23,12 @@
 </template>
 
 <script>
-import products from '@/data/products';
 import enumerate from '@/helpers/enumerate';
 import ProductList from '@/components/product/ProductList.vue';
 import BasePagination from '@/components/base/BasePagination.vue';
 import ProductFilter from '@/components/product/ProductFilter.vue';
 import axios from 'axios';
+import API_BASE_URL from '@/config';
 
 export default {
   components: { ProductList, BasePagination, ProductFilter },
@@ -45,31 +45,6 @@ export default {
     };
   },
   computed: {
-    filteredProducts() {
-      let filteredProducts = products;
-
-      if (this.filterPriceFrom > 0) {
-        filteredProducts = filteredProducts
-          .filter((product) => product.price > this.filterPriceFrom);
-      }
-
-      if (this.filterPriceTo > 0) {
-        filteredProducts = filteredProducts
-          .filter((product) => product.price < this.filterPriceTo);
-      }
-
-      if (this.filterCategoryId > 0) {
-        filteredProducts = filteredProducts
-          .filter((product) => (product.categoryId === this.filterCategoryId));
-      }
-
-      if (this.filterColorId > 0) {
-        filteredProducts = filteredProducts
-          .filter((product) => (product.colorId.indexOf(this.filterColorId) !== -1));
-      }
-
-      return filteredProducts;
-    },
     products() {
       return this.productsData
         // eslint-disable-next-line
@@ -92,13 +67,38 @@ export default {
   },
   methods: {
     loadData() {
-      // eslint-disable-next-line
-      axios.get(`https://vue-study.skillbox.cc/api/products?page=${this.page}&limit=${this.productsPerPage}`)
-        .then((response) => { this.productsData = response.data; });
+      clearTimeout(this.loadDataTimer);
+      this.loadDataTimer = setTimeout(() => {
+        // eslint-disable-next-line
+        axios.get(API_BASE_URL + `/api/products`, {
+          params: {
+            page: this.page,
+            limit: this.productsPerPage,
+            categoryId: this.filterCategoryId,
+            colorId: this.filterColorId,
+            minPrice: this.filterPriceFrom,
+            maxPrice: this.filterPriceTo,
+          },
+        })
+          // eslint-disable-next-line
+          .then((response) => this.productsData = response.data);
+      }, 0);
     },
   },
   watch: {
     page() {
+      this.loadData();
+    },
+    filterCategoryId() {
+      this.loadData();
+    },
+    filterColorId() {
+      this.loadData();
+    },
+    filterPriceFrom() {
+      this.loadData();
+    },
+    filterPriceTo() {
       this.loadData();
     },
   },
