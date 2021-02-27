@@ -80,7 +80,7 @@ export default {
       clearTimeout(this.loadDataTimer);
       this.loadDataTimer = setTimeout(() => {
         // eslint-disable-next-line
-        axios.get(API_BASE_URL + `/api/products2`, {
+        axios.get(API_BASE_URL + `/api/products`, {
           params: {
             page: this.page,
             limit: this.productsPerPage,
@@ -96,7 +96,7 @@ export default {
           .catch(() => this.dataLoadingFailure = true)
           // eslint-disable-next-line
           .then(() => this.dataLoading = false);
-      }, 5000);
+      }, 0);
     },
   },
   watch: {

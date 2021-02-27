@@ -1,5 +1,6 @@
 <template>
-  <main class="content container">
+  <main class="content container" v-if="productLoading">Загрузка товара...</main>
+  <main class="content container" v-else>
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
@@ -23,7 +24,7 @@
     <section class="item">
       <div class="item__pics pics">
         <div class="pics__wrapper">
-          <img width="570" height="570" :src="product.image" :alt="product.title">
+          <img width="570" height="570" :src="product.image.file.url" :alt="product.title">
         </div>
       </div>
 
@@ -155,9 +156,8 @@
 </template>
 
 <script>
-import products from '@/data/products';
-import categories from '@/data/categories';
-import colors from '@/data/colors';
+import axios from 'axios';
+import API_BASE_URL from '@/config';
 import numberFormat from '@/helpers/numberFormat';
 import BlockColors from '@/components/common/BlockColors.vue';
 import BlockCounter from '@/components/common/BlockCounter.vue';
@@ -166,18 +166,21 @@ export default {
   data() {
     return {
       productAmount: 1,
+      productData: null,
+      productLoading: false,
+      productLoadingFailure: false,
     };
   },
   components: { BlockColors, BlockCounter },
   computed: {
     product() {
-      return products.find((product) => product.id === +this.$route.params.id);
+      return this.productData;
     },
     category() {
-      return categories.find((category) => category.id === this.product.categoryId);
+      return this.productData.category;
     },
     colors() {
-      return this.product.colorId.map((id) => colors.find((c) => c.id === id));
+      return this.productData.colors;
     },
   },
   methods: {
@@ -187,24 +190,29 @@ export default {
         { productId: this.product.id, amount: this.productAmount },
       );
     },
+    loadProductData() {
+      this.productLoading = true;
+      this.productLoadingFailure = false;
+      // eslint-disable-next-line
+      axios.get(API_BASE_URL + `/api/products/` + this.$route.params.id)
+        // eslint-disable-next-line
+      .then((response) => this.productData = response.data)
+        // eslint-disable-next-line
+      .catch(() => this.$router.replace({ name: 'notFound' }))
+        // eslint-disable-next-line
+      .then(() => this.productLoading = false);
+    },
   },
   filters: {
     numberFormat,
   },
   watch: {
-    // eslint-disable-next-line
-    '$route.params.id'() {
-      if (!this.product) {
-        this.$router.replace({ name: 'notFound' });
-      }
+    '$route.params.id': {
+      handler() {
+        this.loadProductData();
+      },
+      immediate: true,
     },
   },
 };
 </script>
-
-<style>
-.white__border__color{
-  display: inline-flex;
-  border: 1px solid white;
-}
-</style>
