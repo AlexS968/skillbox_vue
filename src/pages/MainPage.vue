@@ -14,6 +14,11 @@
                      :category-id.sync="filterCategoryId" :color-id.sync="filterColorId"/>
 
       <section class="catalog">
+        <div v-if="dataLoading">Товары загружаются...</div>
+        <div class="pointBlock__circle-2" v-if="dataLoading"></div>
+        <div v-if="dataLoadingFailure">Произошла ошибка при загрузке &#128577;
+          <button @click.prevent="loadData">Хотите повторить?</button></div>
+
         <ProductList :products="products"/>
         <BasePagination v-model="page" :count="countProducts" :per-page="productsPerPage"/>
       </section>
@@ -42,6 +47,9 @@ export default {
       productsData: null,
       page: 1,
       productsPerPage: 3,
+
+      dataLoading: false,
+      dataLoadingFailure: false,
     };
   },
   computed: {
@@ -67,10 +75,12 @@ export default {
   },
   methods: {
     loadData() {
+      this.dataLoading = true;
+      this.dataLoadingFailure = false;
       clearTimeout(this.loadDataTimer);
       this.loadDataTimer = setTimeout(() => {
         // eslint-disable-next-line
-        axios.get(API_BASE_URL + `/api/products`, {
+        axios.get(API_BASE_URL + `/api/products2`, {
           params: {
             page: this.page,
             limit: this.productsPerPage,
@@ -81,8 +91,12 @@ export default {
           },
         })
           // eslint-disable-next-line
-          .then((response) => this.productsData = response.data);
-      }, 0);
+          .then((response) => this.productsData = response.data)
+          // eslint-disable-next-line
+          .catch(() => this.dataLoadingFailure = true)
+          // eslint-disable-next-line
+          .then(() => this.dataLoading = false);
+      }, 5000);
     },
   },
   watch: {
@@ -107,3 +121,29 @@ export default {
   },
 };
 </script>
+
+<style>
+.pointBlock__circle-2 {
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  margin: auto;
+  background: #4af3ff;
+
+  -webkit-animation:radar 2s linear infinite;
+  animation:radar 2s linear infinite
+}
+
+@keyframes radar {
+  0% {
+    -webkit-transform:scale(.3,.3);
+    transform:scale(.3,.3);
+    opacity:1
+  }
+  100% {
+    -webkit-transform:scale(30,30);
+    transform:scale(30,30);
+    opacity:0
+  }
+}
+</style>
