@@ -20,7 +20,7 @@
         <div v-if="dataLoadingFailure">Произошла ошибка при загрузке &#128577;
           <button @click.prevent="loadData">Хотите повторить?</button></div>
 
-        <ProductList :products="products"/>
+        <ProductList :products="products" v-show="!dataLoading"/>
         <BasePagination v-model="page" :count="countProducts" :per-page="productsPerPage"/>
       </section>
 
@@ -101,7 +101,7 @@ export default {
           .catch(() => this.dataLoadingFailure = true)
           // eslint-disable-next-line
           .then(() => this.dataLoading = false);
-      }, 5000);
+      }, 3000);
     },
   },
   watch: {
