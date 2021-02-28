@@ -11,10 +11,8 @@
 <script>
 
 export default {
-
   computed: {
     productsNumber() {
-      console.log(this.$store.state.cartProducts.map((p) => p.productId));
       return this.$store.state.cartProducts.length;
     },
   },

@@ -14,8 +14,9 @@
                      :category-id.sync="filterCategoryId" :color-id.sync="filterColorId"/>
 
       <section class="catalog">
-        <div v-if="dataLoading">Товары загружаются...</div>
-        <div class="pointBlock__circle-2" v-if="dataLoading"></div>
+
+        <div v-if="dataLoading">Товары загружаются... <BlockPreloader class="preloader big"/></div>
+
         <div v-if="dataLoadingFailure">Произошла ошибка при загрузке &#128577;
           <button @click.prevent="loadData">Хотите повторить?</button></div>
 
@@ -32,11 +33,17 @@ import enumerate from '@/helpers/enumerate';
 import ProductList from '@/components/product/ProductList.vue';
 import BasePagination from '@/components/base/BasePagination.vue';
 import ProductFilter from '@/components/product/ProductFilter.vue';
+import BlockPreloader from '@/components/common/BlockPreloader.vue';
 import axios from 'axios';
 import API_BASE_URL from '@/config';
 
 export default {
-  components: { ProductList, BasePagination, ProductFilter },
+  components: {
+    ProductList,
+    BasePagination,
+    ProductFilter,
+    BlockPreloader,
+  },
   data() {
     return {
       filterPriceFrom: 1,
@@ -65,8 +72,7 @@ export default {
         : [];
     },
     countProducts() {
-      return this.productsData
-        ? this.productsData.pagination.total : [];
+      return this.productsData ? this.productsData.pagination.total : [];
     },
     productsNumber() {
       return `${this.countProducts} ${enumerate(this.countProducts,
@@ -79,8 +85,7 @@ export default {
       this.dataLoadingFailure = false;
       clearTimeout(this.loadDataTimer);
       this.loadDataTimer = setTimeout(() => {
-        // eslint-disable-next-line
-        axios.get(API_BASE_URL + `/api/products`, {
+        axios.get(`${API_BASE_URL}/api/products`, {
           params: {
             page: this.page,
             limit: this.productsPerPage,
@@ -96,7 +101,7 @@ export default {
           .catch(() => this.dataLoadingFailure = true)
           // eslint-disable-next-line
           .then(() => this.dataLoading = false);
-      }, 0);
+      }, 5000);
     },
   },
   watch: {
@@ -121,29 +126,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.pointBlock__circle-2 {
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  margin: auto;
-  background: #4af3ff;
-
-  -webkit-animation:radar 2s linear infinite;
-  animation:radar 2s linear infinite
-}
-
-@keyframes radar {
-  0% {
-    -webkit-transform:scale(.3,.3);
-    transform:scale(.3,.3);
-    opacity:1
-  }
-  100% {
-    -webkit-transform:scale(30,30);
-    transform:scale(30,30);
-    opacity:0
-  }
-}
-</style>

@@ -14,7 +14,8 @@
         8 800 600 90 09
       </a>
 
-      <CartIndex/>
+      <div v-if="dataLoading"><BlockPreloader class="preloader small"/></div>
+      <div v-else><CartIndex/></div>
 
     </div>
   </header>
@@ -22,8 +23,13 @@
 
 <script>
 import CartIndex from '@/components/cart/CartIndex.vue';
+import BlockPreloader from '@/components/common/BlockPreloader.vue';
+import { mapGetters } from 'vuex';
 
 export default {
-  components: { CartIndex },
+  components: { CartIndex, BlockPreloader },
+  computed: {
+    ...mapGetters(['dataLoading']),
+  },
 };
 </script>
