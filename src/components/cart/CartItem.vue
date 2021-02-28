@@ -30,14 +30,14 @@
 
 <script>
 import numberFormat from '@/helpers/numberFormat';
-import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 import BlockCounter from '@/components/common/BlockCounter.vue';
 
 export default {
   props: ['item'],
   components: { BlockCounter },
-  filters: {
-    numberFormat,
+  methods: {
+    ...mapActions(['deleteCartProduct', 'updateCartProductAmount']),
   },
   computed: {
     amount: {
@@ -45,14 +45,17 @@ export default {
         return this.item.amount;
       },
       set(value) {
-        this.$store.commit('updateCartProductAmount',
-          { productId: this.item.productId, amount: value });
+        if (value > 0) {
+          this.updateCartProductAmount({
+            productId: this.item.productId,
+            amount: value,
+          });
+        }
       },
     },
   },
-  methods: {
-    ...mapMutations(['deleteCartProduct']),
+  filters: {
+    numberFormat,
   },
 };
-
 </script>
