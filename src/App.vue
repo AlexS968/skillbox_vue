@@ -20,10 +20,10 @@ export default {
       this.updateUserAccessKey(userAccessKey);
     }
 
-    this.loadData();
+    this.loadCartProducts();
   },
   methods: {
-    ...mapActions(['loadData']),
+    ...mapActions(['loadCartProducts']),
     ...mapMutations(['updateUserAccessKey']),
   },
 };

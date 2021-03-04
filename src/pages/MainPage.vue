@@ -10,18 +10,20 @@
     </div>
 
     <div class="content__catalog">
-      <ProductFilter :price-from.sync="filterPriceFrom" :price-to.sync="filterPriceTo"
-                     :category-id.sync="filterCategoryId" :color-id.sync="filterColorId"/>
+      <ProductFilter :price-from.sync="filters.filterPriceFrom"
+                     :price-to.sync="filters.filterPriceTo"
+                     :category-id.sync="filters.filterCategoryId"
+                     :color-id.sync="filters.filterColorId"/>
 
       <section class="catalog">
 
         <div v-if="dataLoading">Товары загружаются... <BlockPreloader class="preloader big"/></div>
 
         <div v-if="dataLoadingFailure">Произошла ошибка при загрузке &#128577;
-          <button @click.prevent="loadData">Хотите повторить?</button></div>
+          <button @click.prevent="loadAllProducts">Хотите повторить?</button></div>
 
-        <ProductList :products="products" v-show="!dataLoading"/>
-        <BasePagination v-model="page" :count="countProducts" :per-page="productsPerPage"/>
+        <ProductList :products="products" v-if="!dataLoading"/>
+        <BasePagination v-model="filters.page" :count="countProducts" :per-page="productsPerPage"/>
       </section>
 
     </div>
@@ -34,6 +36,7 @@ import ProductList from '@/components/product/ProductList.vue';
 import BasePagination from '@/components/base/BasePagination.vue';
 import ProductFilter from '@/components/product/ProductFilter.vue';
 import BlockPreloader from '@/components/common/BlockPreloader.vue';
+import { mapState } from 'vuex';
 import axios from 'axios';
 import API_BASE_URL from '@/config';
 
@@ -46,20 +49,21 @@ export default {
   },
   data() {
     return {
-      filterPriceFrom: 1,
-      filterPriceTo: 0,
-      filterCategoryId: 0,
-      filterColorId: 0,
-
+      filters: {
+        filterPriceFrom: 1,
+        filterPriceTo: 0,
+        filterCategoryId: 0,
+        filterColorId: 0,
+        page: 1,
+      },
       productsData: null,
-      page: 1,
       productsPerPage: 3,
 
-      dataLoading: false,
       dataLoadingFailure: false,
     };
   },
   computed: {
+    ...mapState(['dataLoading']),
     products() {
       return this.productsData
         // eslint-disable-next-line
@@ -80,49 +84,35 @@ export default {
     },
   },
   methods: {
-    loadData() {
-      this.dataLoading = true;
+    loadAllProducts() {
+      this.$store.commit('changeDataLoading', true);
       this.dataLoadingFailure = false;
-      clearTimeout(this.loadDataTimer);
-      this.loadDataTimer = setTimeout(() => {
+      clearTimeout(this.loadAllProductsTimer);
+      this.loadAllProductsTimer = setTimeout(() => {
         axios.get(`${API_BASE_URL}/api/products`, {
           params: {
-            page: this.page,
+            page: this.filters.page,
             limit: this.productsPerPage,
-            categoryId: this.filterCategoryId,
-            colorId: this.filterColorId,
-            minPrice: this.filterPriceFrom,
-            maxPrice: this.filterPriceTo,
+            categoryId: this.filters.filterCategoryId,
+            colorId: this.filters.filterColorId,
+            minPrice: this.filters.filterPriceFrom,
+            maxPrice: this.filters.filterPriceTo,
           },
         })
-          // eslint-disable-next-line
-          .then((response) => this.productsData = response.data)
-          // eslint-disable-next-line
-          .catch(() => this.dataLoadingFailure = true)
-          // eslint-disable-next-line
-          .then(() => this.dataLoading = false);
-      }, 3000);
+          .then((response) => { this.productsData = response.data; })
+          .catch(() => { this.dataLoadingFailure = true; })
+          .then(() => { this.$store.commit('changeDataLoading', false); });
+      }, 2000);
     },
   },
   watch: {
-    page() {
-      this.loadData();
+    filters: {
+      handler() {
+        this.loadAllProducts();
+      },
+      deep: true,
+      immediate: true,
     },
-    filterCategoryId() {
-      this.loadData();
-    },
-    filterColorId() {
-      this.loadData();
-    },
-    filterPriceFrom() {
-      this.loadData();
-    },
-    filterPriceTo() {
-      this.loadData();
-    },
-  },
-  created() {
-    this.loadData();
   },
 };
 </script>

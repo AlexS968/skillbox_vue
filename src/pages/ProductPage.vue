@@ -1,5 +1,6 @@
 <template>
-  <main class="content container" v-if="productLoading">Загрузка товара...</main>
+  <main v-if="dataLoading">Загрузка товара...
+    <BlockPreloader class="preloader big"/></main>
   <main class="content container" v-else>
     <div class="content__top">
       <ul class="breadcrumbs">
@@ -85,8 +86,9 @@
               </button>
             </div>
 
-            <div v-show="productAdded">Товар добавлен в корзину</div>
-            <div v-show="productAddSending">Добавляем товар в корзину...</div>
+            <div v-if="productAdded">Товар добавлен в корзину</div>
+            <div v-if="productAddSending">Добавляем товар в корзину...
+              <BlockPreloader class="preloader small"/></div>
 
           </form>
         </div>
@@ -165,22 +167,23 @@ import API_BASE_URL from '@/config';
 import numberFormat from '@/helpers/numberFormat';
 import BlockColors from '@/components/common/BlockColors.vue';
 import BlockCounter from '@/components/common/BlockCounter.vue';
-import { mapActions } from 'vuex';
+import BlockPreloader from '@/components/common/BlockPreloader.vue';
+import { mapActions, mapState } from 'vuex';
 
 export default {
   data() {
     return {
       productAmount: 1,
       productData: null,
-      productLoading: false,
       productLoadingFailure: false,
 
       productAdded: false,
       productAddSending: false,
     };
   },
-  components: { BlockColors, BlockCounter },
+  components: { BlockColors, BlockCounter, BlockPreloader },
   computed: {
+    ...mapState(['dataLoading']),
     product() {
       return this.productData;
     },
@@ -206,16 +209,14 @@ export default {
         });
     },
     loadProductData() {
-      this.productLoading = true;
+      this.$store.commit('changeDataLoading', true);
       this.productLoadingFailure = false;
-      // eslint-disable-next-line
-      axios.get(API_BASE_URL + `/api/products/` + this.$route.params.id)
-        // eslint-disable-next-line
-      .then((response) => this.productData = response.data)
-        // eslint-disable-next-line
-      .catch(() => this.$router.replace({ name: 'notFound' }))
-        // eslint-disable-next-line
-      .then(() => this.productLoading = false);
+      this.loadProductDataTimer = setTimeout(() => {
+        axios.get(`${API_BASE_URL}/api/products/${this.$route.params.id}`)
+          .then((response) => { this.productData = response.data; })
+          .catch(() => { this.$router.replace({ name: 'notFound' }); })
+          .then(() => { this.$store.commit('changeDataLoading', false); });
+      }, 2000);
     },
   },
   filters: {

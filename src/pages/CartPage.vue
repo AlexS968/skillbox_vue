@@ -1,8 +1,5 @@
 <template>
-  <main v-if="loading">
-    <div>Товары загружаются... <BlockPreloader class="preloader big"/></div>
-  </main>
-  <main class="content container" v-else>
+  <main class="content container">
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
@@ -25,9 +22,10 @@
 
     <section class="cart">
       <form class="cart__form form" action="#" method="POST">
-        <div class="cart__field">
+        <div v-if="dataLoading">Товары загружаются... <BlockPreloader class="preloader big"/></div>
+        <div class="cart__field" v-else>
           <ul class="cart__list">
-            <CartItem v-for="item in products" :key="item.productId" :item="item"/>
+            <CartItem v-for="item in cartDetailProducts" :key="item.productId" :item="item"/>
           </ul>
         </div>
 
@@ -36,7 +34,7 @@
             Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
           </p>
           <p class="cart__price">
-            Итого: <span>{{ totalPrice | numberFormat }} ₽</span>
+            Итого: <span>{{ cartTotalPrice | numberFormat }} ₽</span>
           </p>
 
           <button class="cart__button button button--primery" type="submit">
@@ -52,7 +50,7 @@
 import numberFormat from '@/helpers/numberFormat';
 import CartItem from '@/components/cart/CartItem.vue';
 import BlockPreloader from '@/components/common/BlockPreloader.vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import enumerate from '@/helpers/enumerate';
 
 export default {
@@ -61,14 +59,10 @@ export default {
     numberFormat,
   },
   computed: {
-    ...mapGetters({
-      products: 'cartDetailProducts',
-      totalPrice: 'cartTotalPrice',
-      totalAmount: 'cartTotalAmount',
-      loading: 'dataLoading',
-    }),
+    ...mapGetters(['cartDetailProducts', 'cartTotalPrice', 'cartTotalAmount']),
+    ...mapState(['dataLoading']),
     productsNumber() {
-      return `${this.totalAmount} ${enumerate(this.totalAmount,
+      return `${this.cartTotalAmount} ${enumerate(this.cartTotalAmount,
         ['товар', 'товара', 'товаров'])}`;
     },
   },
