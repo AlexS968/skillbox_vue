@@ -24,12 +24,12 @@
 <script>
 import CartIndex from '@/components/cart/CartIndex.vue';
 import BlockPreloader from '@/components/common/BlockPreloader.vue';
-import { mapGetters } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   components: { CartIndex, BlockPreloader },
   computed: {
-    ...mapGetters(['dataLoading']),
+    ...mapState(['dataLoading']),
   },
 };
 </script>

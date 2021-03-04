@@ -69,15 +69,12 @@ export default new Vuex.Store({
       return getters.cartDetailProducts
         .reduce((acc, item) => item.amount + acc, 0);
     },
-    dataLoading(state) {
-      return state.dataLoading;
-    },
   },
   actions: {
-    loadData(context) {
+    loadCartProducts(context) {
       context.commit('changeDataLoading', true);
 
-      this.loadDataTimer = setTimeout(() => {
+      this.loadCartProductsTimer = setTimeout(() => {
         axios.get(`${API_BASE_URL}/api/baskets`, {
           params: {
             userAccessKey: context.state.userAccessKey,
@@ -132,7 +129,6 @@ export default new Vuex.Store({
         .catch(() => context.commit('syncCartProducts'));
     },
     deleteCartProduct(context, productId) {
-      console.log(productId);
       return axios
         .delete(`${API_BASE_URL}/api/baskets/products`, {
           params: {
