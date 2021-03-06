@@ -13,6 +13,8 @@ export default new Vuex.Store({
 
     cartProductsData: [],
 
+    orderInfo: null,
+
     dataLoading: false,
   },
   mutations: {
@@ -45,8 +47,25 @@ export default new Vuex.Store({
     changeDataLoading(state, dataLoading) {
       state.dataLoading = dataLoading;
     },
+    resetCart(state) {
+      state.cartProducts = [];
+      state.cartProductsData = [];
+    },
+    updateOrderInfo(state, orderInfo) {
+      state.orderInfo = orderInfo;
+    },
   },
   getters: {
+    orderDetailProducts(state) {
+      // eslint-disable-next-line
+      return state.orderInfo.basket.items.map((item) => {
+        return {
+          ...item,
+          amount: item.quantity,
+          productId: item.product.id,
+        };
+      });
+    },
     cartDetailProducts(state) {
       // eslint-disable-next-line
       return state.cartProducts.map((item) => {
@@ -69,8 +88,26 @@ export default new Vuex.Store({
       return getters.cartDetailProducts
         .reduce((acc, item) => item.amount + acc, 0);
     },
+    orderTotalPrice(state, getters) {
+      return getters.orderDetailProducts
+        .reduce((acc, item) => (item.price * item.amount) + acc, 0);
+    },
+    orderTotalAmount(state, getters) {
+      return getters.orderDetailProducts
+        .reduce((acc, item) => item.amount + acc, 0);
+    },
   },
   actions: {
+    loadOrderInfo(context, orderId) {
+      return axios.get(`${API_BASE_URL}/api/orders/${orderId}`, {
+        params: {
+          userAccessKey: context.state.userAccessKey,
+        },
+      })
+        .then((response) => {
+          context.commit('updateOrderInfo', response.data);
+        });
+    },
     loadCartProducts(context) {
       context.commit('changeDataLoading', true);
 
