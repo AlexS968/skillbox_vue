@@ -54,6 +54,7 @@ export default new Vuex.Store({
     updateOrderInfo(state, orderInfo) {
       state.orderInfo = orderInfo;
     },
+
   },
   getters: {
     orderDetailProducts(state) {

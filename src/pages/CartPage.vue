@@ -41,6 +41,7 @@
                        type="submit" :to="{name:'order'}">
             Оформить заказ
           </router-link>
+
         </div>
       </form>
     </section>
