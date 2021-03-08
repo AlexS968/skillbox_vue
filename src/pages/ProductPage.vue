@@ -175,7 +175,6 @@ export default {
     return {
       productAmount: 1,
       productData: null,
-      productLoadingFailure: false,
 
       productAdded: false,
       productAddSending: false,
@@ -210,7 +209,6 @@ export default {
     },
     loadProductData() {
       this.$store.commit('changeDataLoading', true);
-      this.productLoadingFailure = false;
       this.loadProductDataTimer = setTimeout(() => {
         axios.get(`${API_BASE_URL}/api/products/${this.$route.params.id}`)
           .then((response) => { this.productData = response.data; })

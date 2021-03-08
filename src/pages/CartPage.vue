@@ -23,6 +23,7 @@
     <section class="cart">
       <form class="cart__form form" action="#" method="POST">
         <div v-if="dataLoading">Товары загружаются... <BlockPreloader class="preloader big"/></div>
+        <div v-else-if="dataTransferError">Произошла ошибка при загрузке &#128577;</div>
         <div class="cart__field" v-else>
           <ul class="cart__list">
             <CartItem v-for="item in cartDetailProducts" :key="item.productId" :item="item"/>
@@ -62,7 +63,7 @@ export default {
   },
   computed: {
     ...mapGetters(['cartDetailProducts', 'cartTotalPrice', 'cartTotalAmount']),
-    ...mapState(['dataLoading']),
+    ...mapState(['dataLoading', 'dataTransferError']),
     productsNumber() {
       return `${this.cartTotalAmount} ${enumerate(this.cartTotalAmount,
         ['товар', 'товара', 'товаров'])}`;

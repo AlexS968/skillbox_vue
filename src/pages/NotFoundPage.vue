@@ -1,9 +1,13 @@
 <template>
-<h1>Страница не найдена</h1>
+  <h1>404 Not Found</h1>
 </template>
 
 <script>
-export default {
-
-};
+export default {};
 </script>
+
+<style>
+h1 {
+  text-align: center;
+}
+</style>

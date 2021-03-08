@@ -18,15 +18,14 @@
           </a>
         </li>
       </ul>
-
-      <h1 class="content__title">
-        Заказ оформлен <span>№ {{ $store.state.orderInfo.id }}</span>
-      </h1>
     </div>
 
     <section class="cart">
-      <form class="cart__form form" action="#" method="POST">
+      <form class="cart__form form" action="#" method="POST" v-if="orderInfo">
         <div class="cart__field">
+          <h1 class="content__title">
+            Заказ оформлен <span>№ {{ orderInfo.id }}</span>
+          </h1>
           <p class="cart__message">
             Благодарим за выбор нашего магазина. На Вашу почту придет письмо с деталями заказа.
             Наши менеджеры свяжутся с&nbsp;Вами в&nbsp;течение часа для уточнения деталей доставки.
@@ -38,7 +37,7 @@
                 Получатель
               </span>
               <span class="dictionary__value">
-                {{ $store.state.orderInfo.name }}
+                {{ orderInfo.name }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -46,7 +45,7 @@
                 Адрес доставки
               </span>
               <span class="dictionary__value">
-                {{ $store.state.orderInfo.address }}
+                {{ orderInfo.address }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -54,7 +53,7 @@
                 Телефон
               </span>
               <span class="dictionary__value">
-                {{ $store.state.orderInfo.phone }}
+                {{ orderInfo.phone }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -62,7 +61,7 @@
                 Email
               </span>
               <span class="dictionary__value">
-                {{ $store.state.orderInfo.email }}
+                {{ orderInfo.email }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -76,8 +75,7 @@
           </ul>
         </div>
 
-        <CartBlock :products-detail="orderDetailProducts" :show-button="false"
-                   :total-price="orderTotalPrice" :total-amount="orderTotalAmount"/>
+        <CartBlock :cart-block-data="cartBlockData"/>
 
       </form>
     </section>
@@ -86,21 +84,41 @@
 
 <script>
 import CartBlock from '@/components/cart/CartBlock.vue';
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 export default {
   components: { CartBlock },
   computed: {
     ...mapGetters(['orderDetailProducts', 'orderTotalPrice', 'orderTotalAmount']),
+    ...mapState(['orderInfo']),
+    cartBlockData() {
+      return {
+        productsDetail: this.orderDetailProducts,
+        totalAmount: this.orderTotalAmount,
+        totalPrice: this.orderTotalPrice,
+        showButton: false,
+      };
+    },
   },
   methods: {
     ...mapActions(['loadOrderInfo']),
   },
-  created() {
-    if (this.$store.state.orderInfo && this.$store.state.orderInfo.id === this.$route.params.id) {
-      return;
-    }
-    this.loadOrderInfo(this.$route.params.id);
+  watch: {
+    '$route.params.id': {
+      handler() {
+        if (this.orderInfo && this.orderInfo.id === this.$route.params.id) {
+          return;
+        }
+        this.loadOrderInfo(this.$route.params.id)
+          .catch((error) => {
+            console.log(error.response);
+            if (error.response.status === 400 || error.response.status === 404) {
+              this.$router.replace({ name: 'notFound' });
+            }
+          });
+      },
+      immediate: true,
+    },
   },
 };
 </script>

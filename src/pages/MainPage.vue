@@ -18,8 +18,7 @@
       <section class="catalog">
 
         <div v-if="dataLoading">Товары загружаются... <BlockPreloader class="preloader big"/></div>
-
-        <div v-if="dataLoadingFailure">Произошла ошибка при загрузке &#128577;
+        <div v-if="dataTransferError">Произошла ошибка при загрузке &#128577;
           <button @click.prevent="loadAllProducts">Хотите повторить?</button></div>
 
         <ProductList :products="products" v-if="!dataLoading"/>
@@ -36,7 +35,7 @@ import ProductList from '@/components/product/ProductList.vue';
 import BasePagination from '@/components/base/BasePagination.vue';
 import ProductFilter from '@/components/product/ProductFilter.vue';
 import BlockPreloader from '@/components/common/BlockPreloader.vue';
-import { mapState } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 import axios from 'axios';
 import API_BASE_URL from '@/config';
 
@@ -58,12 +57,10 @@ export default {
       },
       productsData: null,
       productsPerPage: 3,
-
-      dataLoadingFailure: false,
     };
   },
   computed: {
-    ...mapState(['dataLoading']),
+    ...mapState(['dataLoading', 'dataTransferError']),
     products() {
       return this.productsData
         // eslint-disable-next-line
@@ -84,10 +81,13 @@ export default {
     },
   },
   methods: {
+    ...mapMutations(['changeDataLoading', 'changeDataTransferError']),
+
     loadAllProducts() {
-      this.$store.commit('changeDataLoading', true);
-      this.dataLoadingFailure = false;
+      this.changeDataLoading(true);
+      this.changeDataTransferError(false);
       clearTimeout(this.loadAllProductsTimer);
+
       this.loadAllProductsTimer = setTimeout(() => {
         axios.get(`${API_BASE_URL}/api/products`, {
           params: {
@@ -100,8 +100,12 @@ export default {
           },
         })
           .then((response) => { this.productsData = response.data; })
-          .catch(() => { this.dataLoadingFailure = true; })
-          .then(() => { this.$store.commit('changeDataLoading', false); });
+          .catch(() => {
+            this.changeDataTransferError(true);
+          })
+          .then(() => {
+            this.changeDataLoading(false);
+          });
       }, 2000);
     },
   },

@@ -16,6 +16,8 @@ export default new Vuex.Store({
     orderInfo: null,
 
     dataLoading: false,
+
+    dataTransferError: false,
   },
   mutations: {
     updateCartProductAmount(state, { productId, amount }) {
@@ -46,6 +48,9 @@ export default new Vuex.Store({
     },
     changeDataLoading(state, dataLoading) {
       state.dataLoading = dataLoading;
+    },
+    changeDataTransferError(state, dataTransferError) {
+      state.dataTransferError = dataTransferError;
     },
     resetCart(state) {
       state.cartProducts = [];
@@ -107,10 +112,12 @@ export default new Vuex.Store({
       })
         .then((response) => {
           context.commit('updateOrderInfo', response.data);
-        });
+        })
+        .catch((error) => { throw error; });
     },
     loadCartProducts(context) {
       context.commit('changeDataLoading', true);
+      context.commit('changeDataTransferError', false);
 
       this.loadCartProductsTimer = setTimeout(() => {
         axios.get(`${API_BASE_URL}/api/baskets`, {
@@ -125,6 +132,10 @@ export default new Vuex.Store({
             }
             context.commit('updateCartProductsData', response.data.items);
             context.commit('syncCartProducts');
+          })
+          .catch(() => {
+            context.commit('changeDataLoading', false);
+            context.commit('changeDataTransferError', true);
           })
           .then(() => context.commit('changeDataLoading', false));
       }, 2000);

@@ -27,9 +27,7 @@
 
     <section class="cart">
       <form class="cart__form form" action="#" method="POST" @submit.prevent="order">
-        <div v-if="dataLoading">Оформляем заказ...
-          <BlockPreloader class="preloader big"/>
-        </div>
+        <div v-if="dataLoading">Оформляем заказ...<BlockPreloader class="preloader big"/></div>
         <div class="cart__field" v-else>
           <div class="cart__data">
             <BaseFormText v-model="orderData.name" title="ФИО"
@@ -88,8 +86,7 @@
           </div>
         </div>
 
-        <CartBlock :products-detail="cartDetailProducts" :show-button="true"
-                   :total-amount="cartTotalAmount" :total-price="cartTotalPrice"/>
+        <CartBlock :cart-block-data="cartBlockData"/>
 
         <div class="cart__error form__error-block" v-if="orderErrorMessage">
           <h4>Заявка не отправлена!</h4>
@@ -108,7 +105,7 @@ import BaseFormTextarea from '@/components/base/BaseFormTextarea.vue';
 import CartBlock from '@/components/cart/CartBlock.vue';
 import BlockPreloader from '@/components/common/BlockPreloader.vue';
 import numberFormat from '@/helpers/numberFormat';
-import { mapGetters, mapState } from 'vuex';
+import { mapGetters, mapState, mapMutations } from 'vuex';
 import enumerate from '@/helpers/enumerate';
 import axios from 'axios';
 import API_BASE_URL from '@/config';
@@ -134,12 +131,23 @@ export default {
       return `${this.cartTotalAmount} ${enumerate(this.cartTotalAmount,
         ['товар', 'товара', 'товаров'])}`;
     },
+    cartBlockData() {
+      return {
+        productsDetail: this.cartDetailProducts,
+        totalAmount: this.cartTotalAmount,
+        totalPrice: this.cartTotalPrice,
+        showButton: true,
+      };
+    },
   },
   methods: {
+    ...mapMutations(['changeDataLoading']),
+
     order() {
       this.orderError = {};
       this.orderErrorMessage = '';
-      this.$store.commit('changeDataLoading', true);
+      this.changeDataLoading(true);
+
       return (
         new Promise((resolve) => setTimeout(resolve, 2000)))
         // eslint-disable-next-line
@@ -154,14 +162,13 @@ export default {
             .then((response) => {
               this.$store.commit('resetCart');
               this.$store.commit('updateOrderInfo', response.data);
+              this.changeDataLoading(false);
               this.$router.push({ name: 'orderInfo', params: { id: response.data.id } });
             })
             .catch((error) => {
               this.orderError = error.response.data.error.request || {};
               this.orderErrorMessage = error.response.data.error.message;
-            })
-            .then(() => {
-              this.$store.commit('changeDataLoading', false);
+              this.changeDataLoading(false);
             });
         });
     },
