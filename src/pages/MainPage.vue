@@ -10,10 +10,8 @@
     </div>
 
     <div class="content__catalog">
-      <ProductFilter :price-from.sync="filters.filterPriceFrom"
-                     :price-to.sync="filters.filterPriceTo"
-                     :category-id.sync="filters.filterCategoryId"
-                     :color-id.sync="filters.filterColorId"/>
+
+      <ProductFilter :current-filters.sync="filters"/>
 
       <section class="catalog">
 
@@ -22,7 +20,7 @@
           <button @click.prevent="loadAllProducts">Хотите повторить?</button></div>
 
         <ProductList :products="products" v-if="!dataLoading"/>
-        <BasePagination v-model="filters.page" :count="countProducts" :per-page="productsPerPage"/>
+        <BasePagination v-model="page" :count="countProducts" :per-page="productsPerPage"/>
       </section>
 
     </div>
@@ -49,13 +47,13 @@ export default {
   data() {
     return {
       filters: {
-        filterPriceFrom: 1,
+        filterPriceFrom: 0,
         filterPriceTo: 0,
         filterCategoryId: 0,
         filterColorId: 0,
-        page: 1,
       },
       productsData: null,
+      page: 1,
       productsPerPage: 3,
     };
   },
@@ -91,7 +89,7 @@ export default {
       this.loadAllProductsTimer = setTimeout(() => {
         axios.get(`${API_BASE_URL}/api/products`, {
           params: {
-            page: this.filters.page,
+            page: this.page,
             limit: this.productsPerPage,
             categoryId: this.filters.filterCategoryId,
             colorId: this.filters.filterColorId,
@@ -116,6 +114,9 @@ export default {
       },
       deep: true,
       immediate: true,
+    },
+    page() {
+      this.loadAllProducts();
     },
   },
 };

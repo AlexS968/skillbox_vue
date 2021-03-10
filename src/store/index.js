@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
 import API_BASE_URL from '@/config';
+import filters from './modules/filters';
 
 Vue.use(Vuex);
 
@@ -18,6 +19,9 @@ export default new Vuex.Store({
     dataLoading: false,
 
     dataTransferError: false,
+  },
+  modules: {
+    filters,
   },
   mutations: {
     updateCartProductAmount(state, { productId, amount }) {

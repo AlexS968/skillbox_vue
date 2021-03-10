@@ -6,22 +6,25 @@
       <fieldset class="form__block">
         <legend class="form__legend">Цена</legend>
         <label class="form__label form__label--price">
-          <input class="form__input" type="text" name="min-price" v-model.number="currentPriceFrom">
+          <input class="form__input" type="text" name="min-price"
+                 v-model.number="filters.priceFrom">
           <span class="form__value">От</span>
         </label>
         <label class="form__label form__label--price">
-          <input class="form__input" type="text" name="max-price" v-model.number="currentPriceTo">
+          <input class="form__input" type="text" name="max-price"
+                 v-model.number="filters.priceTo">
           <span class="form__value">До</span>
         </label>
       </fieldset>
 
       <fieldset class="form__block">
         <legend class="form__legend">Категория</legend>
-        <label class="form__label form__label--select">
+        <label class="form__label form__label--select" v-if="categoriesData">
           <select class="form__select" type="text" name="category"
-                  v-model.number="currentCategoryId">
+                  v-model.number="filters.categoryId">
             <option value="0">Все категории</option>
-            <option :value="category.id" v-for="category in categories" :key="category.id">
+            <option :value="category.id" v-for="category in categoriesData.items"
+                    :key="category.id">
               {{ category.title }}</option>
           </select>
         </label>
@@ -29,7 +32,8 @@
 
       <fieldset class="form__block">
         <legend class="form__legend">Цвет</legend>
-        <BlockColors :colors="colors" :current-color-id.sync="currentColorId"/>
+        <BlockColors v-if="colorsData" :colors="colorsData.items"
+                     :current-color-id.sync="filters.colorId"/>
       </fieldset>
 
       <fieldset class="form__block">
@@ -106,68 +110,54 @@
 </template>
 
 <script>
-import axios from 'axios';
-import API_BASE_URL from '@/config';
+import { mapState, mapActions } from 'vuex';
 import BlockColors from '../common/BlockColors.vue';
 
 export default {
   data() {
     return {
-      currentPriceFrom: 0,
-      currentPriceTo: 0,
-      currentCategoryId: 0,
-      currentColorId: 0,
-
-      categoriesData: null,
-      colorsData: null,
+      filters: {
+        priceFrom: 0,
+        priceTo: 0,
+        categoryId: 0,
+        colorId: 0,
+      },
     };
   },
-  props: ['priceFrom', 'priceTo', 'categoryId', 'colorId'],
+  props: ['currentFilters'],
   components: { BlockColors },
   computed: {
-    categories() {
-      return this.categoriesData ? this.categoriesData.items : [];
+    ...mapState('filters', ['colorsData', 'categoriesData']),
+  },
+  methods: {
+    ...mapActions('filters', ['loadColors', 'loadCategories']),
+    submit() {
+      this.$emit('update:currentFilters', {
+        filterPriceFrom: this.filters.priceFrom,
+        filterPriceTo: this.filters.priceTo,
+        filterCategoryId: this.filters.categoryId,
+        filterColorId: this.filters.colorId,
+      });
     },
-    colors() {
-      return this.colorsData ? this.colorsData.items : [];
+    reset() {
+      this.$emit('update:currentFilters', {
+        filterPriceFrom: 0,
+        filterPriceTo: 0,
+        filterCategoryId: 0,
+        filterColorId: 0,
+      });
     },
   },
   watch: {
-    priceFrom(value) {
-      this.currentPriceFrom = value;
-    },
-    priceTo(value) {
-      this.currentPriceTo = value;
-    },
-    categoryId(value) {
-      this.currentCategoryId = value;
-    },
-    colorId(value) {
-      this.currentColorId = value;
-    },
-  },
-  methods: {
-    submit() {
-      this.$emit('update:priceFrom', this.currentPriceFrom);
-      this.$emit('update:priceTo', this.currentPriceTo);
-      this.$emit('update:categoryId', this.currentCategoryId);
-      this.$emit('update:colorId', this.currentColorId);
-    },
-    reset() {
-      this.$emit('update:priceFrom', 0);
-      this.$emit('update:priceTo', 0);
-      this.$emit('update:categoryId', 0);
-      this.$emit('update:colorId', 0);
-    },
-    loadCategories() {
-      // eslint-disable-next-line
-      axios.get(API_BASE_URL + `/api/productCategories`)
-        .then((response) => { this.categoriesData = response.data; });
-    },
-    loadColors() {
-      // eslint-disable-next-line
-      axios.get(API_BASE_URL + `/api/colors`)
-        .then((response) => { this.colorsData = response.data; });
+    currentFilters: {
+      handler(value) {
+        this.filters.priceFrom = value.filterPriceFrom;
+        this.filters.priceTo = value.filterPriceTo;
+        this.filters.categoryId = value.filterCategoryId;
+        this.filters.colorId = value.filterColorId;
+      },
+      deep: true,
+      immediate: true,
     },
   },
   created() {
