@@ -20,8 +20,8 @@ const actions = {
 };
 
 // mutations
-/* eslint no-shadow: ["error", { "allow": ["state"] }] */
 const mutations = {
+  /* eslint no-shadow: ["error", { "allow": ["state"] }] */
   loadColorsData(state, colors) {
     state.colorsData = colors;
   },

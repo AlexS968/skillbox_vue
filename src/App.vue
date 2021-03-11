@@ -23,7 +23,7 @@ export default {
     this.loadCartProducts();
   },
   methods: {
-    ...mapActions(['loadCartProducts']),
+    ...mapActions('cart', ['loadCartProducts']),
     ...mapMutations(['updateUserAccessKey']),
   },
 };

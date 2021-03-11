@@ -62,7 +62,7 @@ export default {
     numberFormat,
   },
   computed: {
-    ...mapGetters(['cartDetailProducts', 'cartTotalPrice', 'cartTotalAmount']),
+    ...mapGetters('cart', ['cartDetailProducts', 'cartTotalPrice', 'cartTotalAmount']),
     ...mapState(['dataLoading', 'dataTransferError']),
     productsNumber() {
       return `${this.cartTotalAmount} ${enumerate(this.cartTotalAmount,

@@ -37,7 +37,7 @@ export default {
   props: ['item'],
   components: { BlockCounter },
   methods: {
-    ...mapActions(['deleteCartProduct', 'updateCartProductAmount']),
+    ...mapActions('cart', ['deleteCartProduct', 'updateCartProductAmount']),
   },
   computed: {
     amount: {

@@ -26,7 +26,7 @@
     </div>
 
     <section class="cart">
-      <form class="cart__form form" action="#" method="POST" @submit.prevent="order">
+      <form class="cart__form form" action="#" method="POST" @submit.prevent="toOrder">
         <div v-if="dataLoading">Оформляем заказ...<BlockPreloader class="preloader big"/></div>
         <div class="cart__field" v-else>
           <div class="cart__data">
@@ -105,10 +105,8 @@ import BaseFormTextarea from '@/components/base/BaseFormTextarea.vue';
 import CartBlock from '@/components/cart/CartBlock.vue';
 import BlockPreloader from '@/components/common/BlockPreloader.vue';
 import numberFormat from '@/helpers/numberFormat';
-import { mapGetters, mapState, mapMutations } from 'vuex';
+import { mapGetters, mapState, mapActions } from 'vuex';
 import enumerate from '@/helpers/enumerate';
-import axios from 'axios';
-import API_BASE_URL from '@/config';
 
 export default {
   components: {
@@ -125,7 +123,7 @@ export default {
     numberFormat,
   },
   computed: {
-    ...mapGetters(['cartDetailProducts', 'cartTotalPrice', 'cartTotalAmount']),
+    ...mapGetters('cart', ['cartDetailProducts', 'cartTotalPrice', 'cartTotalAmount']),
     ...mapState(['dataLoading']),
     productsNumber() {
       return `${this.cartTotalAmount} ${enumerate(this.cartTotalAmount,
@@ -141,35 +139,15 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(['changeDataLoading']),
-
-    order() {
-      this.orderError = {};
-      this.orderErrorMessage = '';
-      this.changeDataLoading(true);
-
-      return (
-        new Promise((resolve) => setTimeout(resolve, 2000)))
-        // eslint-disable-next-line
-        .then(() => {
-          axios.post(`${API_BASE_URL}/api/orders`, {
-            ...this.orderData,
-          }, {
-            params: {
-              userAccessKey: this.$store.state.userAccessKey,
-            },
-          })
-            .then((response) => {
-              this.$store.commit('resetCart');
-              this.$store.commit('updateOrderInfo', response.data);
-              this.changeDataLoading(false);
-              this.$router.push({ name: 'orderInfo', params: { id: response.data.id } });
-            })
-            .catch((error) => {
-              this.orderError = error.response.data.error.request || {};
-              this.orderErrorMessage = error.response.data.error.message;
-              this.changeDataLoading(false);
-            });
+    ...mapActions('order', ['makeOrder']),
+    toOrder() {
+      this.makeOrder(this.orderData)
+        .then((response) => {
+          this.$router.push({ name: 'orderInfo', params: { id: response.data.id } });
+        })
+        .catch((e) => {
+          this.orderError = e.response.data.error.request || {};
+          this.orderErrorMessage = e.response.data.error.message;
         });
     },
   },

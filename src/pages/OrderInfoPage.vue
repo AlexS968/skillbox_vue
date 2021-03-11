@@ -89,8 +89,8 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 export default {
   components: { CartBlock },
   computed: {
-    ...mapGetters(['orderDetailProducts', 'orderTotalPrice', 'orderTotalAmount']),
-    ...mapState(['orderInfo']),
+    ...mapGetters('order', ['orderDetailProducts', 'orderTotalPrice', 'orderTotalAmount']),
+    ...mapState('order', ['orderInfo']),
     cartBlockData() {
       return {
         productsDetail: this.orderDetailProducts,
@@ -101,7 +101,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['loadOrderInfo']),
+    ...mapActions('order', ['loadOrderInfo']),
   },
   watch: {
     '$route.params.id': {
@@ -111,7 +111,6 @@ export default {
         }
         this.loadOrderInfo(this.$route.params.id)
           .catch((error) => {
-            console.log(error.response);
             if (error.response.status === 400 || error.response.status === 404) {
               this.$router.replace({ name: 'notFound' });
             }

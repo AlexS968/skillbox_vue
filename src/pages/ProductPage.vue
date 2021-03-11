@@ -2,7 +2,7 @@
   <main v-if="dataLoading">Загрузка товара...
     <BlockPreloader class="preloader big"/></main>
   <main class="content container" v-else>
-    <div class="content__top">
+    <div class="content__top" v-if="productData">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
           <router-link class="breadcrumbs__link" :to="{name:'main'}">
@@ -11,38 +11,38 @@
         </li>
         <li class="breadcrumbs__item">
           <router-link class="breadcrumbs__link" :to="{name:'main'}">
-            {{ category.title }}
+            {{ productData.category.title }}
           </router-link>
         </li>
         <li class="breadcrumbs__item">
           <a class="breadcrumbs__link">
-            {{ product.title }}
+            {{ productData.title }}
           </a>
         </li>
       </ul>
     </div>
 
-    <section class="item">
+    <section class="item" v-if="productData">
       <div class="item__pics pics">
         <div class="pics__wrapper">
-          <img width="570" height="570" :src="product.image.file.url" :alt="product.title">
+          <img width="570" height="570" :src="productData.image.file.url" :alt="productData.title">
         </div>
       </div>
 
       <div class="item__info">
-        <span class="item__code">Артикул: {{ product.id }}</span>
+        <span class="item__code">Артикул: {{ productData.id }}</span>
         <h2 class="item__title">
-          {{ product.title }}
+          {{ productData.title }}
         </h2>
         <div class="item__form">
           <form class="form" action="#" method="POST" @submit.prevent="addToCart">
             <b class="item__price">
-              {{ product.price | numberFormat }} ₽
+              {{ productData.price | numberFormat }} ₽
             </b>
 
             <fieldset class="form__block">
               <legend class="form__legend">Цвет:</legend>
-              <BlockColors class="white__border__color" :colors="colors"/>
+              <BlockColors class="white__border__color" :colors="productData.colors"/>
             </fieldset>
 
             <fieldset class="form__block">
@@ -162,8 +162,6 @@
 </template>
 
 <script>
-import axios from 'axios';
-import API_BASE_URL from '@/config';
 import numberFormat from '@/helpers/numberFormat';
 import BlockColors from '@/components/common/BlockColors.vue';
 import BlockCounter from '@/components/common/BlockCounter.vue';
@@ -174,7 +172,6 @@ export default {
   data() {
     return {
       productAmount: 1,
-      productData: null,
 
       productAdded: false,
       productAddSending: false,
@@ -183,38 +180,22 @@ export default {
   components: { BlockColors, BlockCounter, BlockPreloader },
   computed: {
     ...mapState(['dataLoading']),
-    product() {
-      return this.productData;
-    },
-    category() {
-      return this.productData.category;
-    },
-    colors() {
-      return this.productData.colors;
-    },
+    ...mapState('product', ['productData']),
   },
   methods: {
-    ...mapActions(['addProductToCart']),
+    ...mapActions('cart', ['addProductToCart']),
+    ...mapActions('product', ['loadProductData']),
     addToCart() {
       this.productAdded = false;
       this.productAddSending = true;
       this.addProductToCart({
-        productId: this.product.id,
+        productId: this.productData.id,
         amount: this.productAmount,
       })
         .then(() => {
           this.productAdded = true;
           this.productAddSending = false;
         });
-    },
-    loadProductData() {
-      this.$store.commit('changeDataLoading', true);
-      this.loadProductDataTimer = setTimeout(() => {
-        axios.get(`${API_BASE_URL}/api/products/${this.$route.params.id}`)
-          .then((response) => { this.productData = response.data; })
-          .catch(() => { this.$router.replace({ name: 'notFound' }); })
-          .then(() => { this.$store.commit('changeDataLoading', false); });
-      }, 2000);
     },
   },
   filters: {
@@ -223,7 +204,7 @@ export default {
   watch: {
     '$route.params.id': {
       handler() {
-        this.loadProductData();
+        this.loadProductData(this.$route.params.id);
       },
       immediate: true,
     },
